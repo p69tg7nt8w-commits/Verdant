@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Verdant — Tracker</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0A0D14;--bg2:#0E121C;--surface:#141A26;--surface-2:#1A2230;
+  --line:rgba(255,255,255,.08);--line-bright:rgba(255,255,255,.14);
+  --text:#F4F7FB;--muted:#9AA6B8;--muted-2:#6B7689;
+  --cyan:#06B6D4;--blue:#3B82F6;--indigo:#6366F1;--violet:#8B5CF6;--danger:#F08A7A;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+.bg-fx{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden}
+.blob{position:absolute;border-radius:50%;filter:blur(90px);opacity:.45}
+.blob.b1{width:560px;height:560px;background:radial-gradient(circle,rgba(99,102,241,.5),transparent 70%);top:-200px;left:-120px;animation:f1 24s ease-in-out infinite}
+.blob.b2{width:520px;height:520px;background:radial-gradient(circle,rgba(6,182,212,.38),transparent 70%);top:160px;right:-160px;animation:f2 28s ease-in-out infinite}
+@keyframes f1{0%,100%{transform:translate(0,0)}50%{transform:translate(40px,-50px)}}
+@keyframes f2{0%,100%{transform:translate(0,0)}50%{transform:translate(-50px,40px)}}
+.grain{position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.035;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+
+.stage{transform:scale(1.1);opacity:0;filter:blur(5px);transform-origin:50% 38%;animation:unfold 1.3s cubic-bezier(.19,1,.22,1) .05s forwards}
+@keyframes unfold{to{transform:scale(1);opacity:1;filter:blur(0)}}
+
+.app{position:relative;z-index:3;max-width:1180px;margin:0 auto;padding:0 28px}
+
+/* nav */
+nav{position:sticky;top:0;z-index:50;background:rgba(10,13,20,.6);backdrop-filter:blur(18px);border-bottom:1px solid var(--line)}
+nav .inner{max-width:1180px;margin:0 auto;padding:16px 28px;display:flex;justify-content:space-between;align-items:center}
+.brand{display:flex;align-items:center;gap:10px;font-family:'Outfit';font-weight:600;font-size:19px;letter-spacing:-.3px}
+.brand .mark{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--cyan),var(--indigo));display:flex;align-items:center;justify-content:center}
+.brand .mark svg{width:15px;height:15px;stroke:#fff;stroke-width:2.4;fill:none}
+.back{color:var(--muted);text-decoration:none;font-size:14.5px;transition:color .25s}
+.back:hover{color:var(--text)}
+
+/* head */
+.head{padding:64px 0 34px}
+.head .date{font-size:13px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px}
+.head h1{font-family:'Outfit';font-weight:600;font-size:clamp(36px,5.6vw,64px);line-height:1.04;letter-spacing:-1.8px}
+.head h1 .grad{background:linear-gradient(120deg,var(--cyan),var(--indigo) 60%,var(--violet));-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* dashboard */
+.dash{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:60px}
+.dcell{background:linear-gradient(180deg,var(--surface),rgba(20,26,38,.5));border:1px solid var(--line);border-radius:18px;padding:26px 24px;transition:transform .35s cubic-bezier(.19,1,.22,1),border-color .35s}
+.dcell:hover{transform:translateY(-4px);border-color:var(--line-bright)}
+.dcell .l{font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:14px}
+.dcell .v{font-family:'Outfit';font-weight:600;font-size:clamp(28px,3.2vw,40px);line-height:1}
+.dcell .v small{font-size:16px;color:var(--muted-2);font-weight:400}
+.dcell .sub{font-size:13px;color:var(--muted);margin-top:12px}
+.dcell .sub.up{color:var(--cyan)}.dcell .sub.down{color:var(--danger)}
+
+/* cols */
+.cols{display:grid;grid-template-columns:1.45fr 1fr;gap:34px;padding-bottom:120px}
+
+.card{background:linear-gradient(180deg,var(--surface),var(--bg2));border:1px solid var(--line);border-radius:20px;padding:30px;margin-bottom:28px}
+.card-h{display:flex;justify-content:space-between;align-items:flex-end;margin-bottom:6px}
+.card-h h3{font-family:'Outfit';font-weight:600;font-size:20px;letter-spacing:-.4px}
+.note{font-size:13.5px;color:var(--muted);margin-bottom:24px}
+
+/* chart */
+svg .grid{stroke:rgba(255,255,255,.07);stroke-width:1}
+svg .curve{fill:none;stroke:url(#cg);stroke-width:2.6;stroke-linecap:round;stroke-linejoin:round}
+svg .pt{fill:var(--bg);stroke:var(--cyan);stroke-width:2.4}
+svg .lab{font-family:'Inter';font-size:11px;fill:var(--muted-2)}
+
+/* table */
+.tbl{width:100%;border-collapse:collapse}
+.tbl th{text-align:left;font-size:11px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted-2);font-weight:600;padding:0 12px 16px;border-bottom:1px solid var(--line)}
+.tbl td{padding:16px 12px;border-bottom:1px solid var(--line);font-size:14.5px}
+.tbl tr:last-child td{border-bottom:none}
+.tbl tr:hover td{background:rgba(255,255,255,.02)}
+.tbl .d{font-family:'Outfit';font-weight:600;color:var(--text)}
+.del{cursor:pointer;color:var(--muted-2);font-size:13px;transition:color .25s}
+.del:hover{color:var(--danger)}
+.empty{padding:46px 0;text-align:center;color:var(--muted);font-size:15px}
+
+/* form */
+.form{position:sticky;top:90px;background:linear-gradient(180deg,var(--surface),var(--bg2));border:1px solid var(--line-bright);border-radius:20px;padding:32px;box-shadow:0 30px 80px rgba(0,0,0,.4)}
+.form h3{font-family:'Outfit';font-weight:600;font-size:21px;letter-spacing:-.4px;margin-bottom:24px}
+.field{margin-bottom:18px}
+.field label{display:block;font-size:12px;letter-spacing:.5px;text-transform:uppercase;color:var(--muted);margin-bottom:9px}
+.field input{width:100%;background:rgba(255,255,255,.04);border:1px solid var(--line);border-radius:12px;color:var(--text);font-family:'Outfit';font-size:18px;font-weight:500;padding:13px 15px;outline:none;transition:border-color .3s,box-shadow .3s}
+.field input::placeholder{color:var(--muted-2);font-weight:400}
+.field input:focus{border-color:var(--cyan);box-shadow:0 0 0 3px rgba(6,182,212,.14)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.submit{width:100%;margin-top:10px;background:linear-gradient(135deg,var(--cyan),var(--blue));color:#fff;border:none;font-family:'Outfit';font-weight:500;font-size:15px;padding:16px;border-radius:14px;cursor:pointer;box-shadow:0 4px 20px rgba(59,130,246,.28);transition:transform .25s cubic-bezier(.19,1,.22,1),box-shadow .3s}
+.submit:hover{transform:translateY(-2px);box-shadow:0 10px 34px rgba(59,130,246,.45)}
+.reset{display:block;width:100%;text-align:center;margin-top:16px;background:none;border:none;color:var(--muted-2);font-size:12px;letter-spacing:.5px;text-transform:uppercase;cursor:pointer;transition:color .25s}
+.reset:hover{color:var(--danger)}
+
+.reveal{opacity:0;transform:translateY(34px);transition:opacity .9s cubic-bezier(.19,1,.22,1),transform .9s cubic-bezier(.19,1,.22,1)}
+.reveal.in{opacity:1;transform:translateY(0)}
+.reveal.d1{transition-delay:.12s}
+
+@media(max-width:880px){
+  .app{padding:0 22px}
+  .dash{grid-template-columns:1fr 1fr}
+  .cols{grid-template-columns:1fr;gap:24px}
+  .form{position:static}
+}
+</style>
+</head>
+<body>
+<div class="bg-fx"><div class="blob b1"></div><div class="blob b2"></div></div>
+<div class="grain"></div>
+
+<nav><div class="inner">
+  <div class="brand"><span class="mark"><svg viewBox="0 0 24 24"><path d="M4 18 L9 11 L13 14 L20 5"/></svg></span>Verdant</div>
+  <a href="index.html" class="back">← Accueil</a>
+</div></nav>
+
+<div class="stage">
+<div class="app">
+  <div class="head">
+    <div class="date" id="today">—</div>
+    <h1>Ton <span class="grad">cycle</span> en cours</h1>
+  </div>
+
+  <div class="dash" id="dash"></div>
+
+  <div class="cols">
+    <div>
+      <div class="card reveal">
+        <div class="card-h"><h3>Courbe de poids</h3></div>
+        <div class="note">La tendance compte plus que le chiffre du jour.</div>
+        <svg id="chart" viewBox="0 0 600 260" width="100%" preserveAspectRatio="xMidYMid meet"></svg>
+      </div>
+
+      <div class="card reveal">
+        <div class="card-h"><h3>Historique</h3></div>
+        <div class="note">Tes dernières entrées.</div>
+        <table class="tbl">
+          <thead><tr><th>Date</th><th>Poids</th><th>Cal.</th><th>Prot.</th><th>Séance</th><th></th></tr></thead>
+          <tbody id="rows"></tbody>
+        </table>
+        <div class="empty" id="empty" style="display:none">Aucune entrée. Commence par enregistrer ta journée.</div>
+      </div>
+    </div>
+
+    <div>
+      <div class="form reveal d1">
+        <h3>Enregistrer la journée</h3>
+        <div class="field"><label>Poids (kg)</label><input id="i-weight" type="number" step="0.1" placeholder="75.5"></div>
+        <div class="row2">
+          <div class="field"><label>Calories</label><input id="i-cal" type="number" placeholder="2850"></div>
+          <div class="field"><label>Protéines (g)</label><input id="i-prot" type="number" placeholder="165"></div>
+        </div>
+        <div class="row2">
+          <div class="field"><label>Glucides (g)</label><input id="i-carb" type="number" placeholder="305"></div>
+          <div class="field"><label>Lipides (g)</label><input id="i-fat" type="number" placeholder="92"></div>
+        </div>
+        <div class="field"><label>Séance</label><input id="i-work" type="text" placeholder="Push · Bench 90kg"></div>
+        <button class="submit" id="add">Ajouter l'entrée</button>
+        <button class="reset" id="reset">Réinitialiser les données</button>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+
+<script>
+const KEY='verdant_entries';let mem=null;
+function load(){try{const r=localStorage.getItem(KEY);if(r)return JSON.parse(r);}catch(e){}return mem;}
+function save(d){try{localStorage.setItem(KEY,JSON.stringify(d));}catch(e){mem=d;}}
+
+let entries=load();
+if(!entries){
+  const today=new Date();entries=[];
+  const seed=[74.3,74.5,74.4,74.8,75.0,74.9,75.2,75.5];
+  seed.forEach((w,i)=>{const d=new Date(today);d.setDate(today.getDate()-(seed.length-1-i));
+    entries.push({date:d.toISOString().slice(0,10),weight:w,cal:2780+i*12,prot:158+i*2,carb:300,fat:90,work:['Repos','Push','Pull','Legs','Push','Pull','Legs','Push'][i]});});
+  save(entries);
+}
+document.getElementById('today').textContent=new Date().toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}).toUpperCase();
+const fmt=n=>n.toLocaleString('fr-FR');
+
+function render(){
+  entries.sort((a,b)=>a.date.localeCompare(b.date));
+  const last=entries[entries.length-1],first=entries[0];
+  const avgCal=Math.round(entries.reduce((s,e)=>s+(+e.cal||0),0)/entries.length);
+  const avgProt=Math.round(entries.reduce((s,e)=>s+(+e.prot||0),0)/entries.length);
+  const diff=last&&first?(last.weight-first.weight):0;
+  document.getElementById('dash').innerHTML=`
+    <div class="dcell"><div class="l">Poids actuel</div><div class="v">${last?last.weight.toFixed(1).replace('.',',')+'<small> kg</small>':'—'}</div><div class="sub ${diff>=0?'up':'down'}">${diff>=0?'+':''}${diff.toFixed(1).replace('.',',')} kg sur le cycle</div></div>
+    <div class="dcell"><div class="l">Calories moy.</div><div class="v">${avgCal?fmt(avgCal):'—'}</div><div class="sub">par jour</div></div>
+    <div class="dcell"><div class="l">Protéines moy.</div><div class="v">${avgProt||'—'}<small> g</small></div><div class="sub">par jour</div></div>
+    <div class="dcell"><div class="l">Série</div><div class="v">${entries.length}<small> j</small></div><div class="sub">entrées suivies</div></div>`;
+
+  const rows=document.getElementById('rows'),empty=document.getElementById('empty');
+  rows.innerHTML='';empty.style.display=entries.length?'none':'block';
+  [...entries].reverse().forEach(e=>{
+    const d=new Date(e.date).toLocaleDateString('fr-FR',{day:'2-digit',month:'short'});
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td class="d">${d}</td><td>${e.weight.toFixed(1).replace('.',',')} kg</td><td>${e.cal?fmt(+e.cal):'—'}</td><td>${e.prot||'—'} g</td><td>${e.work||'—'}</td><td><span class="del" data-date="${e.date}">retirer</span></td>`;
+    rows.appendChild(tr);
+  });
+  rows.querySelectorAll('.del').forEach(b=>b.onclick=()=>{entries=entries.filter(x=>x.date!==b.dataset.date);save(entries);render();});
+  drawChart();
+}
+
+function drawChart(){
+  const svg=document.getElementById('chart'),W=600,H=260,pad=34;
+  const defs=`<defs><linearGradient id="cg" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#06B6D4"/><stop offset="1" stop-color="#8B5CF6"/></linearGradient><linearGradient id="ag" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(6,182,212,.22)"/><stop offset="1" stop-color="rgba(6,182,212,0)"/></linearGradient></defs>`;
+  if(entries.length<2){svg.innerHTML=defs+`<text x="${W/2}" y="${H/2}" text-anchor="middle" class="lab">Ajoute au moins deux entrées</text>`;return;}
+  const ws=entries.map(e=>e.weight),min=Math.min(...ws)-0.4,max=Math.max(...ws)+0.4;
+  const x=i=>pad+(i/(entries.length-1))*(W-pad*2),y=w=>H-pad-((w-min)/(max-min))*(H-pad*2);
+  let path='',area=`M ${x(0)} ${H-pad} `;
+  entries.forEach((e,i)=>{path+=(i===0?'M':'L')+` ${x(i).toFixed(1)} ${y(e.weight).toFixed(1)} `;area+=`L ${x(i).toFixed(1)} ${y(e.weight).toFixed(1)} `;});
+  area+=`L ${x(entries.length-1)} ${H-pad} Z`;
+  let grid='';for(let g=0;g<=3;g++){const gy=pad+g*(H-pad*2)/3;grid+=`<line class="grid" x1="${pad}" y1="${gy}" x2="${W-pad}" y2="${gy}"/><text class="lab" x="4" y="${gy+4}">${(max-(g/3)*(max-min)).toFixed(1).replace('.',',')}</text>`;}
+  let pts='';entries.forEach((e,i)=>{pts+=`<circle class="pt" cx="${x(i).toFixed(1)}" cy="${y(e.weight).toFixed(1)}" r="4"/>`;});
+  svg.innerHTML=defs+grid+`<path d="${area}" fill="url(#ag)"/><path class="curve" d="${path}"/>`+pts;
+  const cv=svg.querySelector('.curve'),len=cv.getTotalLength();
+  cv.style.strokeDasharray=len;cv.style.strokeDashoffset=len;
+  cv.animate([{strokeDashoffset:len},{strokeDashoffset:0}],{duration:1400,easing:'cubic-bezier(.19,1,.22,1)',fill:'forwards'});
+}
+
+document.getElementById('add').onclick=()=>{
+  const w=parseFloat(document.getElementById('i-weight').value);
+  if(isNaN(w)){document.getElementById('i-weight').focus();return;}
+  const date=new Date().toISOString().slice(0,10);
+  entries=entries.filter(e=>e.date!==date);
+  entries.push({date,weight:w,cal:document.getElementById('i-cal').value,prot:document.getElementById('i-prot').value,carb:document.getElementById('i-carb').value,fat:document.getElementById('i-fat').value,work:document.getElementById('i-work').value});
+  save(entries);
+  ['i-weight','i-cal','i-prot','i-carb','i-fat','i-work'].forEach(id=>document.getElementById(id).value='');
+  render();
+};
+document.getElementById('reset').onclick=()=>{if(confirm('Effacer toutes les données ?')){try{localStorage.removeItem(KEY);}catch(e){}mem=null;location.reload();}};
+
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+render();
+</script>
+</body>
+</html>
