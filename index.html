@@ -239,8 +239,6 @@
   .gallery-item:hover{transform:translateY(-3px)}
   .gallery-item img{width:100%;height:100%;object-fit:cover;transition:transform .35s ease}
   .gallery-item:hover img{transform:scale(1.05)}
-  .gallery-item.wide{aspect-ratio:8/5}
-  @media(min-width:640px){.gallery-item.wide{grid-column:span 2}}
   .gallery-item.quote{
     display:flex;align-items:center;justify-content:center;text-align:center;
     background:linear-gradient(150deg,var(--orange),var(--orange-deep));
@@ -510,14 +508,14 @@
       <span class="eyebrow">Galerie</span>
       <h2 style="font-size:clamp(1.7rem,4vw,2.4rem)">La terrasse, la salle, les assiettes</h2>
       <div class="gallery-grid" style="margin-top:30px">
-        <div class="gallery-item wide">
+        <div class="gallery-item">
           <img src="assets/img/hero-terrasse.jpg" alt="Terrasse de L'Escale face au port, parasols et voiliers" loading="lazy">
         </div>
         <div class="gallery-item">
           <img src="assets/img/interieur-soiree.jpg" alt="Ambiance en salle un soir d'été, clients attablés" loading="lazy">
         </div>
         <div class="gallery-item quote">« Les pieds sur le port, l'assiette pleine d'iode. »</div>
-        <div class="gallery-item wide">
+        <div class="gallery-item">
           <img src="assets/img/plat-boeuf-frites.jpg" alt="Filet de bœuf grillé et frites maison servis à table" loading="lazy">
         </div>
       </div>
